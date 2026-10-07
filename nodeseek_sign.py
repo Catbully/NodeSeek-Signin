@@ -13,7 +13,7 @@ def telegram_Bot(token,chat_id,message):
         'chat_id': chat_id,
         'text': message
     }
-    r = requests.post(url, json=data,verify=False)
+    r = requests.post(url, json=data,timeout=30)
     response_data = r.json()
     msg = response_data['ok']
     print(f"telegram推送结果：{msg}\n")
@@ -24,7 +24,7 @@ def pushplus_ts(token, rw, msg):
         "title": rw,
         "content": msg
     }
-    r = requests.post(url, json=data,verify=False)
+    r = requests.post(url, json=data,timeout=30)
     msg = r.json().get('msg', None)
     print(f'pushplus推送结果：{msg}\n')
 
@@ -45,12 +45,14 @@ if Cookie:
     }
 
     try:
-        response = requests.post(url, headers=headers,verify=False)
+        response = requests.post(url, headers=headers,timeout=30)
+        print(f"NodeSeek HTTP status: {response.status_code}; Content-Type: {response.headers.get('Content-Type', 'unknown')}")
+        response.raise_for_status()
         response_data = response.json()
         message = response_data.get('message')
         success = response_data.get('success')
         
-        if success == "true":
+        if success is True or success == "true":
             print(message)
             if telegram_bot_token and chat_id:
                 telegram_Bot(telegram_bot_token, chat_id, message)
@@ -60,7 +62,10 @@ if Cookie:
                 telegram_Bot(telegram_bot_token, chat_id, message)
             if pushplus_token:
                 pushplus_ts(pushplus_token, "nodeseek签到", message)
+            raise SystemExit(1)
     except Exception as e:
         print("发生异常:", e)
+        raise SystemExit(1)
 else:
     print("请先设置Cookie")
+    raise SystemExit(1)
