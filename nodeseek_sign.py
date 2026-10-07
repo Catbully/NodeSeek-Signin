@@ -47,12 +47,22 @@ if Cookie:
     try:
         response = requests.post(url, headers=headers,timeout=30)
         print(f"NodeSeek HTTP status: {response.status_code}; Content-Type: {response.headers.get('Content-Type', 'unknown')}")
-        response.raise_for_status()
-        response_data = response.json()
-        message = response_data.get('message')
+        try:
+            response_data = response.json()
+        except ValueError:
+            response.raise_for_status()
+            raise RuntimeError("NodeSeek returned a non-JSON response")
+        message = str(response_data.get('message') or '')
+        already_signed = any(text in message for text in (
+            "今天已签到", "今天已经签到", "今日已签到", "今日已经签到",
+            "已经签到过", "已签到过", "已完成签到", "重复签到",
+        ))
+        if not already_signed and response.status_code >= 400:
+            print(message)
+            response.raise_for_status()
         success = response_data.get('success')
         
-        if success is True or success == "true":
+        if success is True or success == "true" or already_signed:
             print(message)
             if telegram_bot_token and chat_id:
                 telegram_Bot(telegram_bot_token, chat_id, message)
