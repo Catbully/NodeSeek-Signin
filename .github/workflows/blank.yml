@@ -1,22 +1,27 @@
 name: nodeseek鸡腿签到
 
 on:
+  workflow_dispatch:
   push:
     branches:
-      - main  # 在 main 分支上进行推送时触发
+      - main
   schedule:
-    - cron: '1 16 * * *'  # 每天凌晨 12 点执行
+    - cron: '1 16 * * *'  # 每天北京时间 00:01
+
+permissions:
+  contents: read
 
 jobs:
   run-nodeseek-sign:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
-      
+        uses: actions/checkout@v4
+
       - name: Set up Python environment
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: '3.11.8'
 
@@ -29,4 +34,5 @@ jobs:
           PUSHPLUS_TOKEN: ${{ secrets.PUSHPLUS_TOKEN }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           CHAT_ID: ${{ secrets.CHAT_ID }}
+          TELEGRAM_API_URL: ${{ secrets.TELEGRAM_API_URL || 'https://api.telegram.org' }}
         run: python nodeseek_sign.py
