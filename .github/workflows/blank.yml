@@ -6,7 +6,7 @@ on:
     branches:
       - main
   schedule:
-    - cron: '1 16 * * *'  # 每天北京时间 00:01
+    - cron: '32 16,22 * * *'  # 每天北京时间 00:32，06:32 备用检查
 
 permissions:
   contents: read
