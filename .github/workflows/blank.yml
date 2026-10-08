@@ -2,11 +2,8 @@ name: nodeseek鸡腿签到
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
   schedule:
-    - cron: '32 16,22 * * *'  # 每天北京时间 00:32，06:32 备用检查
+    - cron: '15 17 * * *'  # 每天北京时间 01:15（UTC 17:15）
 
 permissions:
   contents: read
