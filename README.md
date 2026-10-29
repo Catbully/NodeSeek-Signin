@@ -2,17 +2,14 @@
 
 NodeSeek论坛签到，借助github action 自动触发，默认选择随机签到
 
-需要自行在setting中添加 Repository secrets
+需要自行在 setting 中添加 Repository secrets
 
-如果显示"USER NOT FOUND"就是cookie失效了需要重新抓
+|  名称  |                        含义                         |
+| :----: | :-------------------------------------------------: |
+| COOKIE | 论坛用户cookie，需含 session（建议连同 cf_clearance），自行在浏览器F12中查看 |
 
+运行结果看 Actions 日志：
 
-|  名称  |                 含义                  |
-| :----: | :-----------------------------------: |
-| COOKIE | 论坛用户cookie，自行在浏览器F12中查看 |
-|    PUSHPLUS_TOKEN    | pushplus中的用户token，用于推送，非必需 |
-| TELEGRAM_BOT_TOKEN | 电报token，非必需 |
-| CHAT_ID | 电报chatid，非必需 |
-| TELEGRAM_API_URL | 代理api，非必需 |
-
-
+- `今天的签到收益是x个鸡腿` → 签到成功
+- `USER NOT FOUND` → cookie 失效，重新抓取后更新 `COOKIE`
+- 网络异常 / 5xx / Cloudflare 挑战页会重试 3 次，仍然失败则退出码 1
