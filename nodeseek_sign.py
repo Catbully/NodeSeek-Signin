@@ -5,52 +5,12 @@ import requests
 
 random = "false"  # 随机签到1-x鸡腿为true，固定鸡腿*5为false
 Cookie = os.environ.get("COOKIE", "")
-pushplus_token = os.environ.get("PUSHPLUS_TOKEN")
-telegram_bot_token = os.environ.get("TELEGRAM_BOT_TOKEN", "")
-chat_id = os.environ.get("CHAT_ID", "")
-telegram_api_url = os.environ.get("TELEGRAM_API_URL", "https://api.telegram.org")  # 代理api,可以使用自己的反代
 
 SIGNED_MARKERS = (
     "今天已签到", "今天已经签到", "今日已签到", "今日已经签到",
     "已经签到过", "已签到过", "已完成签到", "重复签到",
 )
 ATTEMPTS = 3  # 网络/风控类失败重试次数
-
-
-def telegram_Bot(token, chat_id, message):
-    url = f'{telegram_api_url}/bot{token}/sendMessage'
-    data = {
-        'chat_id': chat_id,
-        'text': message
-    }
-    try:
-        r = requests.post(url, json=data, timeout=30)
-        print(f"telegram推送结果：{r.json().get('ok')}\n")
-    except Exception as e:
-        # 推送失败不能影响签到结论，否则日志会被误导
-        print(f"telegram推送异常：{e}\n")
-
-
-def pushplus_ts(token, rw, msg):
-    url = 'https://www.pushplus.plus/send/'
-    data = {
-        "token": token,
-        "title": rw,
-        "content": msg
-    }
-    try:
-        r = requests.post(url, json=data, timeout=30)
-        print(f'pushplus推送结果：{r.json().get("msg", None)}\n')
-    except Exception as e:
-        print(f"pushplus推送异常：{e}\n")
-
-
-def report(message, failed):
-    # 沿用原策略：telegram 成功失败都推，pushplus 只在失败时推
-    if telegram_bot_token and chat_id:
-        telegram_Bot(telegram_bot_token, chat_id, message)
-    if failed and pushplus_token:
-        pushplus_ts(pushplus_token, "nodeseek签到", message)
 
 
 def sign_in():
@@ -117,8 +77,4 @@ if not Cookie:
 
 ok, message = sign_in()
 print(message)
-if ok:
-    report(message, failed=False)
-else:
-    report(message, failed=True)
-    raise SystemExit(1)
+raise SystemExit(0 if ok else 1)
